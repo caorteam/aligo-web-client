@@ -1,6 +1,6 @@
 {
   "name": "@caor/aligo-api-client",
-  "version": "0.0.0",
+  "version": "0.0.0-dev1",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf dist",
