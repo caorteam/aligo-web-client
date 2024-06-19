@@ -1,0 +1,26 @@
+{
+  "name": "@caor/aligo-api-client",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "yarn clean && tsc --project ./tsconfig.cjs.json && tsc --project ./tsconfig.esm.json && tsc --project ./tsconfig.type.json",
+    "publish:dev": "yarn publish --new-version ${npm_package_version}-dev --force --no-commit-hooks --no-git-tag-version",
+    "publish:prd": "yarn publish --new-version ${npm_package_version} --force --no-commit-hooks --no-git-tag-version",
+    "bp:dev": "yarn build && yarn publish:dev",
+    "bp:prd": "yarn build && yarn publish:prd"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.14.5",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.5.0",
+    "typescript": "^5.4.5"
+  }
+}
