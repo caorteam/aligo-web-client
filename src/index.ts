@@ -146,10 +146,13 @@ export class AligoKakaoApiClient {
     return response_body as SuccessReadHistoryResponse|ErrorResponse;
   }
 
-  async getSendableCount(p:{apikey: string, userid: string}):Promise<ErrorResponse|SuccessSendableCountResponse>{
+  async getSendableCount():Promise<ErrorResponse|SuccessSendableCountResponse>{
     const url = new URL(`${this.base_url}/akv10/heartinfo/`);
 
-    const body = buildSendableCountParams(p)
+    const body = buildSendableCountParams({
+      apikey: this.api_key,
+      userid: this.user_id,
+    })
 
     const response = await fetch(url, {
       method: 'POST',
