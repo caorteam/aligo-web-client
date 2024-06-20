@@ -1,5 +1,6 @@
 import { buildReadHistoriesParams, SuccessReadHistoryResponse} from "./builders/read-histories.build";
 import { buildReadHistoryParams } from "./builders/read-history.build";
+import { buildReadTemplateParams, SuccessReadTemplateResponse } from "./builders/read-templates.build";
 import { Message, SuccessSendResponse, buildSendParams } from "./builders/send.build";
 import { buildSendableCountParams, SuccessSendableCountResponse } from "./builders/sendable-count.build";
 export interface ErrorResponse {
@@ -38,10 +39,10 @@ export class AligoKakaoApiClient {
     //
     failover?: 'Y'|'N',
     testMode?: 'Y'|'N',
-    sender_key?: string,
+    senderkey?: string,
   }): Promise<SuccessSendResponse | ErrorResponse>{
 
-    if(this.senderkey || p.sender_key){
+    if(!this.senderkey && !p.senderkey){
       throw new Error("senderkey가 설정되어 있지 않습니다.");
     }
     
@@ -60,7 +61,7 @@ export class AligoKakaoApiClient {
     const params = buildSendParams({
       apikey: this.api_key,
       userid: this.user_id,
-      senderkey: p.sender_key?? this.senderkey as string,
+      senderkey: p.senderkey?? this.senderkey as string,
       tpl_code,
       sender,
       senddate,
@@ -81,7 +82,7 @@ export class AligoKakaoApiClient {
 
     const response_body = await response.json()
 
-    return response_body;
+    return response_body as SuccessSendResponse|ErrorResponse;
   }
 
   async readHistories(p:{
@@ -112,7 +113,7 @@ export class AligoKakaoApiClient {
     
     const response_body = await response.json()
 
-    return response_body;
+    return response_body as SuccessReadHistoryResponse|ErrorResponse;
   }
 
   async readHistory(p:{
@@ -142,7 +143,7 @@ export class AligoKakaoApiClient {
     
     const response_body = await response.json()
 
-    return response_body;
+    return response_body as SuccessReadHistoryResponse|ErrorResponse;
   }
 
   async getSendableCount(p:{apikey: string, userid: string}):Promise<ErrorResponse|SuccessSendableCountResponse>{
@@ -160,6 +161,40 @@ export class AligoKakaoApiClient {
     
     const response_body = await response.json()
 
-    return response_body;
+    return response_body as SuccessSendableCountResponse|ErrorResponse;
+  }
+
+  async readTemplates(p:{
+    page?: number,
+    limit?: number,
+    senderkey?: string,
+    tpl_code?: string,
+  }): Promise<SuccessReadTemplateResponse|ErrorResponse>{
+    const url = new URL(`${this.base_url}/akv10/template/list/`);
+
+    if(!this.senderkey && !p.senderkey){
+      throw new Error("senderkey가 설정되어 있지 않습니다.");
+    }
+
+    const params = buildReadTemplateParams({
+      apikey: this.api_key,
+      userid: this.user_id,
+      senderkey: p.senderkey?? this.senderkey as string,
+      ...p,
+    })
+
+    const body = new URLSearchParams(params);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body
+    });
+    
+    const response_body = await response.json()
+
+    return response_body as SuccessReadTemplateResponse|ErrorResponse;
   }
 }
