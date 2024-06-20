@@ -68,7 +68,7 @@ export function buildSendParams(p: {
   return params;
 }
 
-export interface SuccessResponse {
+export interface SuccessSendResponse {
   code: 0,
   message: "성공적으로 전송요청 하였습니다.",
   info : {

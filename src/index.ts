@@ -1,6 +1,6 @@
 import { buildReadHistoriesParams, SuccessReadHistoryResponse} from "./builders/read-histories.build";
 import { buildReadHistoryParams } from "./builders/read-history.build";
-import { Message, SuccessResponse, buildSendParams } from "./builders/send.build";
+import { Message, SuccessSendResponse, buildSendParams } from "./builders/send.build";
 import { buildSendableCountParams, SuccessSendableCountResponse } from "./builders/sendable-count.build";
 export interface ErrorResponse {
   code: -99|-101|number,
@@ -10,15 +10,26 @@ export class AligoKakaoApiClient {
   private readonly base_url: string;
   private readonly api_key: string;
   private readonly user_id: string;
-  private readonly senderkey: string;
+  private senderkey?: string;
 
-  constructor(p: {base_url?: string, api_key: string, user_id: string, senderkey: string}) {
+  constructor(p: {base_url?: string, api_key: string, user_id: string, senderkey?: string}) {
     this.base_url = p.base_url ?? 'https://kakaoapi.aligo.in';
     this.api_key = p.api_key;
     this.user_id = p.user_id;
-    this.senderkey = p.senderkey;
+    if(p.senderkey){
+      this.senderkey = p.senderkey;
+    }
   }
 
+  setSenderkey(senderkey: string){
+    this.senderkey = senderkey;
+  }
+
+  /**
+   * 
+   * @param p 
+   * @returns 
+   */
   async send(p: {
     tpl_code: string,
     sender: string,
@@ -27,8 +38,13 @@ export class AligoKakaoApiClient {
     //
     failover?: 'Y'|'N',
     testMode?: 'Y'|'N',
-  }): Promise<SuccessResponse | ErrorResponse>{
+    sender_key?: string,
+  }): Promise<SuccessSendResponse | ErrorResponse>{
 
+    if(this.senderkey || p.sender_key){
+      throw new Error("senderkey가 설정되어 있지 않습니다.");
+    }
+    
     const {tpl_code, sender, senddate, messages} = p;
 
     if(senddate){
@@ -44,7 +60,7 @@ export class AligoKakaoApiClient {
     const params = buildSendParams({
       apikey: this.api_key,
       userid: this.user_id,
-      senderkey: this.senderkey,
+      senderkey: p.sender_key?? this.senderkey as string,
       tpl_code,
       sender,
       senddate,
@@ -54,7 +70,7 @@ export class AligoKakaoApiClient {
     // return params;
 
     const body = new URLSearchParams(params);
-    // return body;
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -75,7 +91,6 @@ export class AligoKakaoApiClient {
     startdate?: string,
     // YYYYMMDD
     enddate?: string,
-    senderkey?: string,
   }): Promise<SuccessReadHistoryResponse|ErrorResponse>{
     const url = new URL(`${this.base_url}/akv10/history/list/`);
 
